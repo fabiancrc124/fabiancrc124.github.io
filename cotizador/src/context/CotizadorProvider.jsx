@@ -1,22 +1,20 @@
-import { useState, createContext } from "react";
-import { obtenerDiferenciaYear,calcularMarca, calcularPlan, formatearDinero } from "../helpers";
+import { useState, createContext } from 'react'
+import { obtenerDiferenciaYear, calcularMarca, calcularPlan, formatearDinero } from '../helpers'
 
+const CotizadorContext = createContext()
 
-const CotizadorContext = createContext();
+const CotizadorProvider = ({children}) => {
 
-const CotizadorProvider = ({children}) =>{
-
-    const [datos,setDatos] = useState({
-        marca:'',
-        year:'',
-        plan:''
+    const [datos, setDatos] = useState({
+        marca: '',
+        year: '',
+        plan: ''
     })
-
-    const [error,setError] = useState('')
+    const [error, setError] = useState('')
     const [resultado, setResultado] = useState(0)
     const [cargando, setCargando] = useState(false)
 
-    const handleChangeDatos = e =>{        
+    const handleChangeDatos = e => {
         setDatos({
             ...datos,
             [e.target.name] : e.target.value
@@ -24,27 +22,27 @@ const CotizadorProvider = ({children}) =>{
     }
 
     const cotizarSeguro = () => {
-        // una base
-        let resultado = 2000;
-        
-        // obtener la diferencia de años        
-        const diferencia = obtenerDiferenciaYear(Number(datos.year));
+        // Una base 
+        let resultado = 2000
 
-        // hay que restar el 3 % por cada año
-        resultado -= ((diferencia * 3 ) * resultado) / 100
-        
-        // Americano
-        // Europeo
-        // Asiatico        
+        // Obtener diferencia de años
+        const diferencia = obtenerDiferenciaYear(datos.year)
+
+        // Hay que restar el 3% por cada año
+        resultado -= ((diferencia * 3) * resultado) / 100
+
+        // Europeo 30%
+        // Americano 15%
+        // Asiatico 5%
         resultado *= calcularMarca(datos.marca)
-        
-        // Basico 20%
+
+        // Básico 20%
         // Completo 50%
-        resultado *= calcularPlan(datos.plan);
-        
-        // Formatear dinero
+        resultado *= calcularPlan(datos.plan)
+
+        // Formatear Dinero
         resultado = formatearDinero(resultado)
-        
+
         setCargando(true)
 
         setTimeout(() => {
@@ -52,26 +50,25 @@ const CotizadorProvider = ({children}) =>{
             setCargando(false)
         }, 3000);
     }
-    
-    return (
+
+    return(
         <CotizadorContext.Provider
-        value={{ 
-            handleChangeDatos,
-            datos,
-            error,
-            setError,
-            cotizarSeguro,
-            resultado,
-            cargando
-        }}
+            value={{
+                datos,
+                handleChangeDatos,
+                error,
+                setError,
+                cotizarSeguro,
+                resultado,
+                cargando
+            }}
         >
             {children}
         </CotizadorContext.Provider>
     )
 }
 
-export {
+export { 
     CotizadorProvider
 }
-
 export default CotizadorContext
